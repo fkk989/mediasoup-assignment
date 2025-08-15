@@ -2,7 +2,7 @@
 
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/fkk989/mediasoup-assignment.git
 cd mediasoup-assignment
 ```
 
