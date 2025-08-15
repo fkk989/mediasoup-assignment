@@ -3,7 +3,7 @@ import express from 'express'
 import { Server as SocketIOServer, Socket } from 'socket.io'
 import { Worker } from 'mediasoup/node/lib/types'
 import { RtpCapabilities, RtpParameters } from 'mediasoup/node/lib/types'
-import createWorkers from './utils/createWorkers'
+import { createSingleWorker, createWorkers } from './utils/createWorkers'
 import getWorker from './utils/getWorker'
 import updateActiveSpeakers from './utils/updateActiveSpeakers'
 import Client from './classes/client'
@@ -29,6 +29,18 @@ const rooms: Room[] = []
 
 const initMediaSoup = async () => {
     workers = await createWorkers()
+
+    workers.forEach((worker, index) => {
+        worker.on('died', async () => {
+            console.error(`Mediasoup worker at index ${index} died. Restarting...`);
+
+            const newWorker = await createSingleWorker();
+
+            workers[index] = newWorker;
+
+            console.log(`Mediasoup worker at index ${index} restarted successfully.`);
+        });
+    });
 }
 
 initMediaSoup()

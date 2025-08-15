@@ -5,16 +5,10 @@ import { config } from '../config/config'
 
 const totalThreads = os.cpus().length
 
-const createWorkers = async (): Promise<Worker[]> => {
-    const workers: Worker[] = []
-
+export const createWorkers = async () => {
+    let workers: Worker[] = []
     for (let i = 0; i < totalThreads; i++) {
         const worker = await createWorker(config.workerSettings)
-
-        worker.on('died', () => {
-            console.error('Mediasoup worker died — exiting process')
-            process.exit(1)
-        })
 
         workers.push(worker)
     }
@@ -22,4 +16,10 @@ const createWorkers = async (): Promise<Worker[]> => {
     return workers
 }
 
-export default createWorkers
+export const createSingleWorker = async () => {
+    const worker = await createWorker(config.workerSettings)
+
+    return worker
+}
+
+

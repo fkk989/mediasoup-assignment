@@ -3,11 +3,11 @@ import Room from "../classes/room";
 
 const updateActiveSpeakers = (room: Room, io: Server): Record<string, string[]> => {
     const activeSpeakers = room.activeSpeakerList.slice(0, 5);
-    const mutedSpeakers = room.activeSpeakerList.slice(5);
+    const sepakersToMute = room.activeSpeakerList.slice(5);
     const newTransportsByPeer: Record<string, string[]> = {};
 
     room.clients.forEach(client => {
-        mutedSpeakers.forEach(pid => {
+        sepakersToMute.forEach(pid => {
             if (client.producer.audio?.id === pid) {
                 client.producer.audio.pause();
                 client.producer.video?.pause();

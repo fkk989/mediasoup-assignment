@@ -3,6 +3,7 @@ import type { Server as SocketIOServer } from 'socket.io'
 import { config } from '../config/config'
 import newDominantSpeaker from '../utils/newDominantSpeaker'
 import type Client from './client'
+import HlsManger from './hls'
 class Room {
     roomName: string
     worker: Worker
@@ -10,6 +11,7 @@ class Room {
     clients: Client[] = []
     activeSpeakerList: string[] = []
     activeSpeakerObserver!: ActiveSpeakerObserver
+    hlsManager?: HlsManger
     constructor(roomName: string, workerToUse: Worker) {
         this.roomName = roomName
         this.worker = workerToUse
@@ -31,11 +33,17 @@ class Room {
     }
 
     async cleanup() {
-        if (this.activeSpeakerObserver) {
-            this.activeSpeakerObserver.close()
-        }
-        if (this.router) {
-            this.router.close()
+
+        try {
+            if (this.activeSpeakerObserver) {
+                this.activeSpeakerObserver.close()
+            }
+
+            if (this.router) {
+                this.router.close()
+            }
+        } catch (error) {
+            console.log("Error room cleanup: ", error)
         }
     }
 
@@ -67,13 +75,13 @@ class Room {
             interval: 300
         })
 
-        // just for testing if createActiveSpeakerObserver is working fine
-        // this.activeSpeakerObserver.observer.on("addproducer", (producer) => {
-        //     console.log("producerAdded: ", producer.id)
-        // })
+        this.activeSpeakerObserver.on("dominantspeaker", async (ds) => {
+            try {
+                newDominantSpeaker(ds, this, io)
 
-        this.activeSpeakerObserver.on("dominantspeaker", ds => {
-            newDominantSpeaker(ds, this, io)
+            } catch (error) {
+                console.error("Error in change in dominantspeaker: ", error)
+            }
         })
     }
 }

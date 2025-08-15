@@ -18,7 +18,7 @@ export default function WatchPage() {
 
   useEffect(() => {
     if (videoRef.current) {
-      const hlsUrl = `${process.env.NEXT_PUBLIC_STREAM_SERVER}/hls/${room}/index.m3u8`;
+      const hlsUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/hls/${room}/index.m3u8`;
 
       if (Hls.isSupported()) {
         const hls = new Hls();
